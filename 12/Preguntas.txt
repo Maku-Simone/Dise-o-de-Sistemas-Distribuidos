@@ -1,0 +1,33 @@
+10-1 ¿cual es la funcion que realiza inet_addr("127.0.0.1") en el programa 10-1, porqué se pasa
+      127.0.0.1 como argumento?
+
+        127.0.0.1 se refiere a que se va a trabajar sobre localhost
+        La funcion inet_addr convierte la dirección de host de internet IPv4 (notación de npumeros y puntos)
+        a datos binarios ordeados
+
+
+10-2 Añada al programa 10-1 las lineas de código necesarias para imprimir digito por digito
+      el contenido de la variable msg_to_server.sin_addr.s_addr
+
+           printf("\ns.addr = %lu\n", msg_to_server_addr.sin_addr.s_addr);
+
+10-3 Modifique el programa 10-1 para que imprima inmediatamente después de la funcion recvfrom
+      en el programa del servidor y en el programa del cliente la dirección IP y puerto de quien
+      ha enviado el datagrama
+
+      printf("\nIP: ");
+      unsigned char dir[4];
+      memcpy(dir, &msg_to_client_addr.sin_addr.s_addr, 4);
+      for(int i = 0; i < 4; i++)
+       {
+         printf("%d", dir[i]);
+         if(i < 3)
+           {
+             printf(":");
+           }
+       }
+
+      printf(" - Puerto: %hu", msg_to_client_addr.sin_port);
+
+10-4  Haga las modificaciones necesarias para que al programa cliente se le deba pasar la direccion
+      IP del servidor en la linea de comandos

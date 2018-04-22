@@ -1,0 +1,15 @@
+Pregunta 9-1
+En el campo sin_port se almacena el puerto en el que se conectará el socket
+
+Pregunta 9-2
+El domininio del socket es AF_INET (dominio de internet) y es de tipo SOCK_DGRAM (socket de datagrama)
+La función void bzero(void *s, size_t n) establece en 0 ('\0') los primeros n bytes del área que empieza en s 
+Al imprimir la variable 'puerto' en hexadecimal obtenemos 1c20, después de usar htons obtenemos 201c, la función htons traduce el valor 1c20 a un formato big-endian. htons() hace un swap entre los bytes, de modo que el 1c pasa a tomar el lugar del 20 y viceversa
+
+Pregunta 9-3
+Se inicializa a variable server_addr con los valores sin_family = AF_INET, sin_addr.s_addr = INADDR_ANY, sin_port = htons(puerto).
+La variable msg_to_client_addr no se inicializa, entonces sus miembros contienen basura.
+
+Pregunta 9-4
+Los datos recibidos se almacenan en la variable msg_to_client_addr, y como es una estructura, la IP y el puerto son miembros de dicha variable
+Si los miembros de server_addr no se inicializan tendrían basura, entonces no conoceríamos el dominio del socket, la dirección o el puerto y al momento de crear un cliente no sabríamos a donde mandar la información.
