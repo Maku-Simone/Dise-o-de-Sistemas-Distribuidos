@@ -6,6 +6,7 @@
 #include <netdb.h>
 #include <strings.h>
 #include <string.h>
+#include <math.h>
 
 int puerto = 7200;
 
@@ -13,8 +14,8 @@ int main(int argc, char *argv[])
 {
 
    struct sockaddr_in msg_to_server_addr, client_addr;
-   int s, res = 0, cuadro = 0, x = 0, y = 0, xCalc = 0, yCalc = 0;
-   double velocidad = 0.0;
+   int s, res = 0, cuadro = 0, x = 0, y = 0, xCalc = 0, yCalc = 0, x2 = 0, y2 = 0;
+   double velocidad = 0.0, m = 0.0;
 
    s = socket(AF_INET, SOCK_DGRAM, 0);
    /* rellena la dirección del servidor */
@@ -79,5 +80,31 @@ int main(int argc, char *argv[])
    sendto(s, (int *)&yCalc, sizeof(int), 0, (struct sockaddr *) &msg_to_server_addr, sizeof(msg_to_server_addr));
    char pos[] = "posiciones";
    sendto(s, (char *)&pos, sizeof(pos) * sizeof(char), 0, (struct sockaddr *) &msg_to_server_addr, sizeof(msg_to_server_addr));
+
+   while(1)
+    {
+      char mensaje[] = "";
+      recvfrom(s, (char *)&mensaje, 20*sizeof(char), 0, NULL, NULL);
+    //  printf("\n(%s)\n", mensaje);
+      if(strcmp(mensaje, "Calculando") == 0)
+        {
+            printf("\nCalculando *3*\n");
+            recvfrom(s, (int *)&x2, sizeof(int), 0, NULL, NULL);
+            recvfrom(s, (int *)&y2, sizeof(int), 0, NULL, NULL);
+            //recibi posicion de mi victima
+            printf("\n(%d, %d victima)\n", x2, y2);
+            m = (y2*1.0 - y*1.0)/(x2*1.0 - x*1.0);
+            xCalc = ( velocidad / (sqrt(1 + m*m)) ) + x;
+            yCalc = ( velocidad / (sqrt(1 + (1/(m*m))  )) ) + y;
+            //Hag mis calculos
+            sendto(s, (int *)&xCalc, sizeof(int), 0, (struct sockaddr *) &msg_to_server_addr, sizeof(msg_to_server_addr));
+            sendto(s, (int *)&xCalc, sizeof(int), 0, (struct sockaddr *) &msg_to_server_addr, sizeof(msg_to_server_addr));
+            //envio mi nueva posición
+            x = xCalc;
+            y = yCalc;
+            //me muevo a mi nueva posicion
+        }
+    }
+
    close(s);
 }

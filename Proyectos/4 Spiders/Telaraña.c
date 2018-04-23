@@ -11,6 +11,7 @@ int puerto = 7200;
 
 void pintaCuadro(int);
 void pintaArana(int, int);
+void pintaRuta(int);
 
 
 void pintaArana(int x, int y)
@@ -53,11 +54,17 @@ void pintaCuadro(int lados)
       }
   }
 
+void pintaRuta(int pasos)
+  {
+
+  }
+
 int main(void)
 {
   //******************** Mis variables :3
    char msg[] = "";
-   int s, res, clilen, sizeCuadro = 0, i = 0, posicionesContador = 0, aranaContador = 0;
+   char msg2[] = "Calculando";
+   int s, res, clilen, sizeCuadro = 0, i = 0, posicionesContador = 0, aranaContador = 0, x = 0, y = 0;   
    int coordSpider[2][1000][4]; //[x,y][posiciones][arañas]
   //*************************************
    //---------------------------------------------------------------
@@ -113,7 +120,29 @@ int main(void)
                         pintaArana(coordSpider[0][posicionesContador][i] ,
                                    coordSpider[1][posicionesContador][i]);
                       }
-                    posicionesContador++;  
+                    posicionesContador++;
+                    int subContador = 1;
+                    for(int j = 0; j < 4; j++)
+                      {
+                        if(subContador > 2)
+                          {
+                            subContador = 0;
+                          }
+                        sendto(s, (char *)&msg2, sizeof(msg2) * sizeof(char), 0, (struct sockaddr *)&msg_to_client_addr, clilen);
+                        //envio de que ya va a iniciar calculos
+                        sendto(s, (int *)&coordSpider[0][posicionesContador][subContador], sizeof(int), 0, (struct sockaddr *)&msg_to_client_addr, clilen);
+                        sendto(s, (int *)&coordSpider[1][posicionesContador][subContador], sizeof(int), 0, (struct sockaddr *)&msg_to_client_addr, clilen);
+                        //envio posición de araña victima
+
+
+                        recvfrom(s, (int *)&x, sizeof(int), 0, (struct sockaddr *)&msg_to_client_addr, &clilen);
+                        recvfrom(s, (int *)&y, sizeof(int), 0, (struct sockaddr *)&msg_to_client_addr, &clilen);
+                        coordSpider[0][posicionesContador][i] = x;
+                        coordSpider[1][posicionesContador][i] = y;
+                        printf("\nAraña %d (%d, %d)\n", i, x, y);
+                        //Recibo nuevas posiciones
+                        subContador++;
+                      }
                 }
               else
                 {
