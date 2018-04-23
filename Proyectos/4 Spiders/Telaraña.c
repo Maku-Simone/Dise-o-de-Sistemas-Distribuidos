@@ -10,25 +10,54 @@
 int puerto = 7200;
 
 void pintaCuadro(int);
+void pintaArana(int, int);
+
+
+void pintaArana(int x, int y)
+  {
+    printf("\n%d,%d\n",x,y);
+    for(int t = 0; t < 2; t++)
+      {
+        int c1 = 10, c2 = 20;
+        for(int i = 0; i < 2; i++)
+          {
+            gfx_line(x, y, x + c1, y + c1);
+            gfx_line(x, y, x + c1, y + c2);
+            gfx_line(x, y, x + c1, y - c2);
+            gfx_line(x, y, x + c1, y - c1);
+
+            gfx_line(x, y, x - c1, y + c1);
+            gfx_line(x, y, x - c1, y + c2);
+            gfx_line(x, y, x - c1, y - c2);
+            gfx_line(x, y, x - c1, y - c1);
+            gfx_flush();
+            usleep(41666); //24 por segundo
+          }
+      }
+  }
 
 void pintaCuadro(int lados)
   {
-    printf("\nPintando cuadro\n");
+    printf("\nPintando cuadro de %dx%d\n",lados, lados);
     gfx_open(900, 900, "Arañas :3");
     gfx_color(0,200,100);
-    gfx_clear();
-    gfx_line(0, 0, 0, lados);
-    gfx_line(0, lados, lados, lados);
-    gfx_line(lados, lados,  lados, 0);
-    gfx_line(lados, 0, 0, 0);
-    gfx_flush();
+    for(int t = 0; t < 2; t++)
+      {
+        gfx_clear();
+        gfx_line(0, 0, 0, lados);
+        gfx_line(0, lados, lados, lados);
+        gfx_line(lados, lados,  lados, 0);
+        gfx_line(lados, 0, 0, 0);
+        gfx_flush();
+        usleep(41666); //24 por segundo
+      }
   }
 
 int main(void)
 {
   //******************** Mis variables :3
    char msg[] = "";
-   int s, res, clilen, sizeCuadro = 0, i = 0;
+   int s, res, clilen, sizeCuadro = 0, i = 0, posicionesContador = 0, aranaContador = 0;
    int coordSpider[2][1000][4]; //[x,y][posiciones][arañas]
   //*************************************
    //---------------------------------------------------------------
@@ -54,9 +83,20 @@ int main(void)
           recvfrom(s, (char *)&msg, 20*sizeof(char), 0, (struct sockaddr *)&msg_to_client_addr, &clilen);
           if(strcmp(msg, "Muffet") == 0)
             {
+              int x, y;
+              if(aranaContador > 4)
+                {
+                  aranaContador = 0;
+                }
               printf("\nConectando con araña %d\n", i);
               sendto(s, (int *)&i, sizeof(int), 0, (struct sockaddr *)&msg_to_client_addr, clilen);
               sendto(s, (int *)&sizeCuadro, sizeof(int), 0, (struct sockaddr *)&msg_to_client_addr, clilen);
+              recvfrom(s, (int *)&x, sizeof(int), 0, (struct sockaddr *)&msg_to_client_addr, &clilen);
+              recvfrom(s, (int *)&y, sizeof(int), 0, (struct sockaddr *)&msg_to_client_addr, &clilen);
+              coordSpider[0][posicionesContador][aranaContador] = x;
+              coordSpider[1][posicionesContador][aranaContador] = y;
+
+              aranaContador++;
               i++;
             }
             /*Este if es por cada intento de conexion de una araña, si no se trata de una conexion
@@ -65,8 +105,15 @@ int main(void)
             {
               if(i >= 4)
                 {
+
                     printf("\nTodos conectados - Iniciando cálculos\n");
                     pintaCuadro(sizeCuadro);
+                    for(int i = 0; i < 4; i++)
+                      {
+                        pintaArana(coordSpider[0][posicionesContador][i] ,
+                                   coordSpider[1][posicionesContador][i]);
+                      }
+                    posicionesContador++;  
                 }
               else
                 {

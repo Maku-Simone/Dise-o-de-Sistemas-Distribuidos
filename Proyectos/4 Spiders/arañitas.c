@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
 {
 
    struct sockaddr_in msg_to_server_addr, client_addr;
-   int s, res = 0, cuadro = 0, x = 0, y = 0;
+   int s, res = 0, cuadro = 0, x = 0, y = 0, xCalc = 0, yCalc = 0;
    double velocidad = 0.0;
 
    s = socket(AF_INET, SOCK_DGRAM, 0);
@@ -72,7 +72,11 @@ int main(int argc, char *argv[])
     default:
         ;
   }
+  xCalc = x;
+  yCalc = y;
    printf("\nSoy la araña %d, cuadro mide %d, mi posición es (%d, %d) y viajo a %lfpx/s\n", res, cuadro, x, y, velocidad);
+   sendto(s, (int *)&xCalc, sizeof(int), 0, (struct sockaddr *) &msg_to_server_addr, sizeof(msg_to_server_addr));
+   sendto(s, (int *)&yCalc, sizeof(int), 0, (struct sockaddr *) &msg_to_server_addr, sizeof(msg_to_server_addr));
    char pos[] = "posiciones";
    sendto(s, (char *)&pos, sizeof(pos) * sizeof(char), 0, (struct sockaddr *) &msg_to_server_addr, sizeof(msg_to_server_addr));
    close(s);
