@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
   bzero((char *)&client_addr, sizeof(client_addr));
   client_addr.sin_family = AF_INET;
   client_addr.sin_addr.s_addr = INADDR_ANY;
-  char msg[] = "Muffet", aceptar[] = "";
+  char msg[] = "Muffet", msg2[] = "6u6";
 
   /*cuando se utiliza por numero de puerto el 0, el sistema se encarga de asignarle uno */
   client_addr.sin_port = htons(9000);
@@ -92,6 +92,23 @@ int main(int argc, char *argv[])
          default:
              ;
        }
+       if(spider[i].x >= cuadro/2)
+        {
+          spider[i].x -= cuadro/2;
+        }
+      else
+        {
+          spider[i].x = (cuadro/2) - spider[i].x;
+        }
+      if(spider[i].y <= cuadro/2)
+       {
+         spider[i].y = (cuadro/2) - spider[i].y;
+       }
+       else
+          {
+            spider[i].y -= cuadro/2;
+          }
+
        spider[i].xCalc = spider[i].x;
        spider[i].yCalc = spider[i].y;
        printf("\nSoy la araña %d, cuadro mide %d, mi posición es (%d, %d) y viajo a %lfpx/s\n",
@@ -126,6 +143,7 @@ int main(int argc, char *argv[])
         spider[i].y = spider[i].yCalc;
         //me muevo a mi nueva posicions
         i++;
+        sendto(s, (char *)&msg2, sizeof(msg2) * sizeof(char), 0, (struct sockaddr *) &msg_to_server_addr, sizeof(msg_to_server_addr));
       }
 
   //cuando ya tenga 4 arañas conectadas deberia recibir algo aqui
