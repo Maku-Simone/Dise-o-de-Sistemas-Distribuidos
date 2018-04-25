@@ -16,7 +16,7 @@ void pintaRuta(int);
 
 void pintaArana(int x, int y)
   {
-    printf("\n%d,%d\n",x,y);
+    printf("\n(%d, %d)",x,y);
     for(int t = 0; t < 2; t++)
       {
         int c1 = 10, c2 = 20;
@@ -64,7 +64,7 @@ int main(void)
   //******************** Mis variables :3
    char msg[] = "";
    char msg2[] = "Calculando";
-   int s, res, clilen, sizeCuadro = 0, i = 0, posicionesContador = 0, aranaContador = 0, x = 0, y = 0;   
+   int s, res, clilen, sizeCuadro = 0, i = 0, posicionesContador = 0, aranaContador = 0, x = 0, y = 0;
    int coordSpider[2][1000][4]; //[x,y][posiciones][arañas]
   //*************************************
    //---------------------------------------------------------------
@@ -88,6 +88,7 @@ int main(void)
    while(1) {
       /* envía la petición al cliente. La estructura msg_to_client_addr contiene la dirección socket del cliente */
           recvfrom(s, (char *)&msg, 20*sizeof(char), 0, (struct sockaddr *)&msg_to_client_addr, &clilen);
+          printf("\n[ --- %s --- ]\n",msg);
           if(strcmp(msg, "Muffet") == 0)
             {
               int x, y;
@@ -97,22 +98,23 @@ int main(void)
                 }
               printf("\nConectando con araña %d\n", i);
               sendto(s, (int *)&i, sizeof(int), 0, (struct sockaddr *)&msg_to_client_addr, clilen);
+              printf("\nPosicion inicial asignada\n");
               sendto(s, (int *)&sizeCuadro, sizeof(int), 0, (struct sockaddr *)&msg_to_client_addr, clilen);
+              printf("\nCuadro aignado\n");
               recvfrom(s, (int *)&x, sizeof(int), 0, (struct sockaddr *)&msg_to_client_addr, &clilen);
               recvfrom(s, (int *)&y, sizeof(int), 0, (struct sockaddr *)&msg_to_client_addr, &clilen);
+              printf("\nPosiciones recibidas\n");
               coordSpider[0][posicionesContador][aranaContador] = x;
               coordSpider[1][posicionesContador][aranaContador] = y;
-
+              /*  Posiciones x, y  */
               aranaContador++;
               i++;
             }
             /*Este if es por cada intento de conexion de una araña, si no se trata de una conexion
               entonces se proceden con calculos*/
-          else
-            {
-              if(i >= 4)
+              if(i > 3) //4 arañas conectadas
                 {
-
+                    printf("\n%s\n", msg);
                     printf("\nTodos conectados - Iniciando cálculos\n");
                     pintaCuadro(sizeCuadro);
                     for(int i = 0; i < 4; i++)
@@ -120,35 +122,51 @@ int main(void)
                         pintaArana(coordSpider[0][posicionesContador][i] ,
                                    coordSpider[1][posicionesContador][i]);
                       }
-                    posicionesContador++;
+                    printf("\nArañas desplegadas\n");
+                  /*  static char m2[] = "ponte a trabajar";
+                    sendto(s, (char *)&m2, 20*sizeof(char), 0, (struct sockaddr *)&msg_to_client_addr, clilen);
+*/
+
                     int subContador = 1;
                     for(int j = 0; j < 4; j++)
                       {
+                        printf("\n(%d, %d) -> (%d, %d)",
+                          coordSpider[0][posicionesContador][subContador-1],coordSpider[1][posicionesContador][subContador-1],
+                        coordSpider[0][posicionesContador][subContador],coordSpider[1][posicionesContador][subContador]);
                         if(subContador > 2)
                           {
                             subContador = 0;
                           }
-                        sendto(s, (char *)&msg2, sizeof(msg2) * sizeof(char), 0, (struct sockaddr *)&msg_to_client_addr, clilen);
+                        printf("\nEnviando posiciones de victima\n");
+                        //sendto(s, (char *)&msg2, sizeof(msg2) * sizeof(char), 0, (struct sockaddr *)&msg_to_client_addr, clilen);
                         //envio de que ya va a iniciar calculos
                         sendto(s, (int *)&coordSpider[0][posicionesContador][subContador], sizeof(int), 0, (struct sockaddr *)&msg_to_client_addr, clilen);
                         sendto(s, (int *)&coordSpider[1][posicionesContador][subContador], sizeof(int), 0, (struct sockaddr *)&msg_to_client_addr, clilen);
                         //envio posición de araña victima
-
-
+                        printf("\nVictima enviada\n");
                         recvfrom(s, (int *)&x, sizeof(int), 0, (struct sockaddr *)&msg_to_client_addr, &clilen);
                         recvfrom(s, (int *)&y, sizeof(int), 0, (struct sockaddr *)&msg_to_client_addr, &clilen);
-                        coordSpider[0][posicionesContador][i] = x;
-                        coordSpider[1][posicionesContador][i] = y;
-                        printf("\nAraña %d (%d, %d)\n", i, x, y);
+
+                        printf("\nPosiciones de seguimiento recibidas \n");
+                        coordSpider[0][posicionesContador + 1][subContador] = x;
+                        coordSpider[1][posicionesContador + 1][subContador] = y;
+                        printf("\nAraña %d (%d, %d)\n", subContador, x, y);
                         //Recibo nuevas posiciones
                         subContador++;
                       }
+                   posicionesContador++;
+                   for(int i = 0; i < 4; i++)
+                     {
+                       //gfx_clear();
+                       pintaArana(coordSpider[0][posicionesContador][i] ,
+                                  coordSpider[1][posicionesContador][i]);
+                     }
+                   printf("\nArañas desplegadas\n");
                 }
               else
                 {
                   continue;
-                }
-            }
+                }//if i > 2
 
    }
 }
