@@ -32,7 +32,7 @@ void pintaArana(int x, int y)
             gfx_line(x, y, x - c1, y - c2);
             gfx_line(x, y, x - c1, y - c1);
             gfx_flush();
-            usleep(2500); //24 por segundo
+            usleep(1500); //24 por segundo
           }
       }
   }
@@ -49,7 +49,7 @@ void pintaCuadro(int lados)
         gfx_line(lados, lados,  lados, 0);
         gfx_line(lados, 0, 0, 0);
         gfx_flush();
-        usleep(2500); //24 por segundo
+        usleep(1500); //24 por segundo
       }
   }
 
@@ -58,11 +58,17 @@ void pintaRuta(int pasos)
 
   }
 
+int onColision()
+    {
+      return 0;
+    }
+
 int main(void)
 {
   //******************** Mis variables :3
    char msg[] = "";
    char msg2[] = "Calculando";
+   int colision = 0;
    int s, res, clilen, sizeCuadro = 0, i = 0, posicionesContador = 0, aranaContador = 0, x = 0, y = 0;
    int coordSpider[2][1000][4]; //[x,y][posiciones][arañas]
   //*************************************
@@ -141,6 +147,7 @@ int main(void)
                         sendto(s, (int *)&coordSpider[0][posicionesContador][subContador], sizeof(int), 0, (struct sockaddr *)&msg_to_client_addr, clilen);
                         sendto(s, (int *)&coordSpider[1][posicionesContador][subContador], sizeof(int), 0, (struct sockaddr *)&msg_to_client_addr, clilen);
                         //envio posición de araña victima
+                        sendto(s, (int *)&colision, sizeof(int), 0, (struct sockaddr *)&msg_to_client_addr, clilen);
                         //printf("\nVictima enviada\n");
                         recvfrom(s, (int *)&x, sizeof(int), 0, (struct sockaddr *)&msg_to_client_addr, &clilen);
                         recvfrom(s, (int *)&y, sizeof(int), 0, (struct sockaddr *)&msg_to_client_addr, &clilen);

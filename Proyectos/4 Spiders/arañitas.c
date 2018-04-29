@@ -18,6 +18,7 @@ typedef struct CoordsStruct{
   int yCalc;
   int x2;
   int y2;
+  int colision;
   double velocidad;
   double m;
   double distancia;
@@ -27,7 +28,7 @@ int main(int argc, char *argv[])
 {
   struct sockaddr_in msg_to_server_addr, client_addr;
   int s, res = 0, cuadro = 0;
-  struct CoordsStruct spider[4] = {0,0,0,0,0,0,0.0,0.0,0.0};
+  struct CoordsStruct spider[4] = {0,0,0,0,0,0,0,0.0,0.0,0.0};
 
   s = socket(AF_INET, SOCK_DGRAM, 0);
   /* rellena la dirección del servidor */
@@ -92,22 +93,7 @@ int main(int argc, char *argv[])
          default:
              ;
        }
-       if(spider[i].x >= cuadro/2)
-        {
-          spider[i].x -= cuadro/2;
-        }
-      else
-        {
-          spider[i].x = (cuadro/2) - spider[i].x;
-        }
-      if(spider[i].y <= cuadro/2)
-       {
-         spider[i].y = (cuadro/2) - spider[i].y;
-       }
-       else
-          {
-            spider[i].y -= cuadro/2;
-          }
+
 
        spider[i].xCalc = spider[i].x;
        spider[i].yCalc = spider[i].y;
@@ -129,14 +115,46 @@ int main(int argc, char *argv[])
         recvfrom(s, (int *)&(spider[i].x2), sizeof(int), 0, NULL, NULL);
         recvfrom(s, (int *)&(spider[i].y2), sizeof(int), 0, NULL, NULL);
         //recibi posicion de mi victima
+        int signox = 1, signoy = 1;
         printf("\n(%d, %d) -> (%d, %d) victima\n",spider[i].x, spider[i].y, spider[i].x2, spider[i].y2);
         spider[i].m = (spider[i].y2*1.0 - spider[i].y*1.0)/(spider[i].x2*1.0 - spider[i].x*1.0);
-        spider[i].xCalc = (spider[i].velocidad / (sqrt(1 + spider[i].m*spider[i].m)) ) + spider[i].x;
-        spider[i].yCalc = (spider[i].velocidad / (sqrt(1 + (1/(spider[i].m*spider[i].m))  )) ) + spider[i].y;
+        if(i == 0) //A
+          {
+            signox = 1;
+            signoy = 1;
+          }
+        if(i == 1) //B
+            {
+              signox = 1;
+              signoy = -1;
+            }
+        if(i == 2)
+          {
+            signox = -1;
+            signoy = -1;
+          }
+        if(i == 3)
+          {
+            signox = -1;
+            signoy = 1;
+          }
+        spider[i].xCalc = (spider[i].velocidad / (sqrt(1 + spider[i].m*spider[i].m)) )*(signox) + spider[i].x;
+        spider[i].yCalc = (spider[i].velocidad / (sqrt(1 + (1/(spider[i].m*spider[i].m))  )) )*(signoy) + spider[i].y;
         //Hag mis calculos
         printf("\nCalculando nueva posicion\n");
-        sendto(s, (int *)&(spider[i].xCalc), sizeof(int), 0, (struct sockaddr *) &msg_to_server_addr, sizeof(msg_to_server_addr));
-        sendto(s, (int *)&(spider[i].yCalc), sizeof(int), 0, (struct sockaddr *) &msg_to_server_addr, sizeof(msg_to_server_addr));
+        recvfrom(s, (int *)&spider[i].colision, sizeof(int), 0, NULL, NULL);
+
+        if(spider[i].colision == 1) //colisionado
+          {
+            sendto(s, (int *)&(spider[i].x), sizeof(int), 0, (struct sockaddr *) &msg_to_server_addr, sizeof(msg_to_server_addr));
+            sendto(s, (int *)&(spider[i].y), sizeof(int), 0, (struct sockaddr *) &msg_to_server_addr, sizeof(msg_to_server_addr));
+          }
+        else
+          {
+            sendto(s, (int *)&(spider[i].xCalc), sizeof(int), 0, (struct sockaddr *) &msg_to_server_addr, sizeof(msg_to_server_addr));
+            sendto(s, (int *)&(spider[i].yCalc), sizeof(int), 0, (struct sockaddr *) &msg_to_server_addr, sizeof(msg_to_server_addr));
+          }
+
         //envio mi nueva posición
         printf("\nNueva posicion enviada\n");
         spider[i].x = spider[i].xCalc;
