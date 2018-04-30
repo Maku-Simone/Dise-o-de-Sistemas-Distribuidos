@@ -6,8 +6,9 @@
 #include <strings.h>
 #include <string.h>
 #include "gfx.h"
-
+int pasos = 0;
 int puerto = 7200;
+int coordSpider[2][1000][4]; //[x,y][posiciones][arañas]
 
 void pintaCuadro(int);
 void pintaArana(int, int);
@@ -55,7 +56,15 @@ void pintaCuadro(int lados)
 
 void pintaRuta(int pasos)
   {
-
+    for(int j = 0; j < 4; j++)
+      {
+        for(int k = 0; k < pasos - 1; k++)
+          {
+            gfx_line(coordSpider[0][k][j], coordSpider[1][k][j], coordSpider[0][k+4][j], coordSpider[1][k+4][j]);
+            gfx_flush();
+            usleep(1500);
+          }
+      }
   }
 
 int onColision()
@@ -70,7 +79,7 @@ int main(void)
    char msg2[] = "Calculando";
    int colision = 0;
    int s, res, clilen, sizeCuadro = 0, i = 0, posicionesContador = 0, aranaContador = 0, x = 0, y = 0;
-   int coordSpider[2][1000][4]; //[x,y][posiciones][arañas]
+
   //*************************************
    //---------------------------------------------------------------
    // COSAS DEL SERVER
@@ -128,6 +137,11 @@ int main(void)
                         pintaArana(coordSpider[0][posicionesContador][i] ,
                                    coordSpider[1][posicionesContador][i]);
                       }
+                      if(pasos > 3)
+                        {
+                          pintaRuta(pasos);
+                        }
+                      pasos++;
                   //  printf("\nArañas desplegadas\n");
                   /*  static char m2[] = "ponte a trabajar";
                     sendto(s, (char *)&m2, 20*sizeof(char), 0, (struct sockaddr *)&msg_to_client_addr, clilen);
@@ -150,6 +164,7 @@ int main(void)
                         sendto(s, (int *)&colision, sizeof(int), 0, (struct sockaddr *)&msg_to_client_addr, clilen);
                         //printf("\nVictima enviada\n");
                         recvfrom(s, (int *)&x, sizeof(int), 0, (struct sockaddr *)&msg_to_client_addr, &clilen);
+                        printf("\n");
                         recvfrom(s, (int *)&y, sizeof(int), 0, (struct sockaddr *)&msg_to_client_addr, &clilen);
 
                         //printf("\nPosiciones de seguimiento recibidas \n");

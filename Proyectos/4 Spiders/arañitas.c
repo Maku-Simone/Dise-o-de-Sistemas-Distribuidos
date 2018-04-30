@@ -146,11 +146,13 @@ int main(int argc, char *argv[])
 
         if(spider[i].colision == 1) //colisionado
           {
+            printf("La araña %d ha recorrido un total de %lfpx\n", i, spider[i].distancia);
             sendto(s, (int *)&(spider[i].x), sizeof(int), 0, (struct sockaddr *) &msg_to_server_addr, sizeof(msg_to_server_addr));
             sendto(s, (int *)&(spider[i].y), sizeof(int), 0, (struct sockaddr *) &msg_to_server_addr, sizeof(msg_to_server_addr));
           }
         else
           {
+            spider[i].distancia += spider[i].velocidad*1.0;
             sendto(s, (int *)&(spider[i].xCalc), sizeof(int), 0, (struct sockaddr *) &msg_to_server_addr, sizeof(msg_to_server_addr));
             sendto(s, (int *)&(spider[i].yCalc), sizeof(int), 0, (struct sockaddr *) &msg_to_server_addr, sizeof(msg_to_server_addr));
           }
